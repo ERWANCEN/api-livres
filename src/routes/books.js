@@ -1,40 +1,52 @@
 const express = require('express');
+const Book = require('../models/Book');
 const router = express.Router();
 
-let books = [];
-let nextId = 1;
-
-// Lister tous les livres
-router.get('/', (req, res) => res.json(books));
-
-// Lire un livre
-router.get('/:id', (req, res) => {
-  const book = books.find(b => b.id === Number(req.params.id));
-  if (!book) return res.status(404).json({ message: 'Livre introuvable' });
-  res.json(book);
+router.get('/', async (req, res) => {
+  const books = await Book.find();
+  res.json(books);
 });
 
-// Créer un livre
-router.post('/', (req, res) => {
-  const book = { id: nextId++, ...req.body };
-  books.push(book);
-  res.status(201).json(book);
+router.get('/:id', async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ message: 'Livre introuvable' });
+    res.json(book);
+  } catch {
+    res.status(400).json({ message: 'Identifiant invalide' });
+  }
 });
 
-// Modifier un livre
-router.put('/:id', (req, res) => {
-  const index = books.findIndex(b => b.id === Number(req.params.id));
-  if (index === -1) return res.status(404).json({ message: 'Livre introuvable' });
-  books[index] = { ...books[index], ...req.body, id: books[index].id };
-  res.json(books[index]);
+router.post('/', async (req, res) => {
+  try {
+    const book = await Book.create(req.body);
+    res.status(201).json(book);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });
 
-// Supprimer un livre
-router.delete('/:id', (req, res) => {
-  const index = books.findIndex(b => b.id === Number(req.params.id));
-  if (index === -1) return res.status(404).json({ message: 'Livre introuvable' });
-  books.splice(index, 1);
-  res.status(204).send();
+router.put('/:id', async (req, res) => {
+  try {
+    const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,           // renvoie le livre après modification
+      runValidators: true, // vérifie que title et author restent remplis
+    });
+    if (!book) return res.status(404).json({ message: 'Livre introuvable' });
+    res.json(book);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const book = await Book.findByIdAndDelete(req.params.id);
+    if (!book) return res.status(404).json({ message: 'Livre introuvable' });
+    res.status(204).send();
+  } catch {
+    res.status(400).json({ message: 'Identifiant invalide' });
+  }
 });
 
 module.exports = router;
