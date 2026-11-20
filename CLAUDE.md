@@ -24,7 +24,7 @@ Consignes du cours :
 - [x] Étape 3 : MongoDB (branche `feature/mongodb`)
 - [x] Étape 4 : Dockerfile + .dockerignore (branche `feature/dockerfile`)
 - [x] Étape 5 : docker-compose.yml (branche `feature/docker-compose`)
-- [ ] Étape 6 : README avec instructions de lancement et de test (branche `docs/readme`)
+- [x] Étape 6 : README avec instructions de lancement et de test (branche `docs/readme`)
 
 ## Attendus techniques
 - Dockerfile : image `node:20-alpine`, copier `package*.json` avant le code (cache de `npm install`)
